@@ -74,7 +74,7 @@ module SslRequirement
       return true if ssl_allowed?
 
       if ssl_required? && !request.ssl?
-        if request.subdomains.length > 1 && secure_account_subdomain
+        if request.subdomains.length == 1 && secure_account_subdomain
           redirect_to "https://" + request.host + request.request_uri
         else
           redirect_to "https://" + (ssl_host || request.host) + request.request_uri
