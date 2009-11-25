@@ -82,7 +82,7 @@ module SslRequirement
         flash.keep
         return false
       elsif request.ssl? && !ssl_required?
-        if request.subdomains.length > 1 && secure_account_subdomain
+        if request.subdomains.length == 1 && secure_account_subdomain
           redirect_to "http://" + request.host + request.request_uri
         else
           redirect_to "http://" + (non_ssl_host || request.host) + request.request_uri
