@@ -21,7 +21,7 @@ require "#{File.dirname(__FILE__)}/url_rewriter"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 module SslRequirement
-  mattr_accessor :ssl_host, :non_ssl_host
+  mattr_accessor :ssl_host, :non_ssl_host, :secure_account_subdomain
   
   def self.included(controller)
     controller.extend(ClassMethods)
@@ -74,11 +74,19 @@ module SslRequirement
       return true if ssl_allowed?
 
       if ssl_required? && !request.ssl?
-        redirect_to "https://" + (ssl_host || request.host) + request.request_uri
+        if request.subdomains.length > 1 && secure_account_subdomain
+          redirect_to "https://" + request.host + request.request_uri
+        else
+          redirect_to "https://" + (ssl_host || request.host) + request.request_uri
+        end
         flash.keep
         return false
       elsif request.ssl? && !ssl_required?
-        redirect_to "http://" + (non_ssl_host || request.host) + request.request_uri
+        if request.subdomains.length > 1 && secure_account_subdomain
+          redirect_to "http://" + request.host + request.request_uri
+        else
+          redirect_to "http://" + (non_ssl_host || request.host) + request.request_uri
+        end
         flash.keep
         return false
       end
